@@ -283,10 +283,13 @@ main {
 
 .poem-image {
   width: 100%;
+  max-height: 500px;   
+  object-fit: contain;
   height: 200px;
   overflow: hidden;
   border-radius: var(--radius-sm);
   margin-bottom: 1rem;
+  background-color: #f9f9f9;
 }
 
 .poem-image img {

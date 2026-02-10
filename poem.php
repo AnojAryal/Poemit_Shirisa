@@ -2,56 +2,43 @@
 require_once 'config/config.php';
 
 $poem_id = intval($_GET['id'] ?? 0);
+if (!$poem_id) redirect('/');
 
-if (!$poem_id) {
-    redirect('/');
-}
+$db = (new Database())->getConnection();
 
-$database = new Database();
-$db = $database->getConnection();
-
-// Get poem with author info
-$query = "SELECT p.*, u.username, u.avatar_url, u.bio,
-          ps.likes_count, ps.comments_count
-          FROM poems p
-          JOIN users u ON p.user_id = u.id
-          LEFT JOIN poem_stats ps ON p.id = ps.poem_id
-          WHERE p.id = :id AND p.is_published = 1";
-$stmt = $db->prepare($query);
+// Get poem + author + stats
+$stmt = $db->prepare("
+    SELECT p.*, u.username, u.avatar_url, u.bio, ps.likes_count, ps.comments_count
+    FROM poems p
+    JOIN users u ON p.user_id = u.id
+    LEFT JOIN poem_stats ps ON p.id = ps.poem_id
+    WHERE p.id = :id AND p.is_published = 1
+");
 $stmt->bindParam(':id', $poem_id);
 $stmt->execute();
 $poem = $stmt->fetch();
+if (!$poem) redirect('/');
 
-if (!$poem) {
-    redirect('/');
-}
+// Increment views
+$db->prepare("UPDATE poems SET views_count = views_count + 1 WHERE id = :id")->execute([':id' => $poem_id]);
 
-// Increment view count
-$query = "UPDATE poems SET views_count = views_count + 1 WHERE id = :id";
-$stmt = $db->prepare($query);
-$stmt->bindParam(':id', $poem_id);
-$stmt->execute();
-
-// Check if current user liked this poem
+// Check if user liked
 $user_liked = false;
 if (isLoggedIn()) {
-    $query = "SELECT id FROM likes WHERE user_id = :user_id AND poem_id = :poem_id";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':user_id', $_SESSION['user_id']);
-    $stmt->bindParam(':poem_id', $poem_id);
-    $stmt->execute();
+    $stmt = $db->prepare("SELECT id FROM likes WHERE user_id = :u AND poem_id = :p");
+    $stmt->execute([':u' => $_SESSION['user_id'], ':p' => $poem_id]);
     $user_liked = $stmt->fetch() !== false;
 }
 
 // Get comments
-$query = "SELECT c.*, u.username, u.avatar_url
-          FROM comments c
-          JOIN users u ON c.user_id = u.id
-          WHERE c.poem_id = :poem_id
-          ORDER BY c.created_at DESC";
-$stmt = $db->prepare($query);
-$stmt->bindParam(':poem_id', $poem_id);
-$stmt->execute();
+$stmt = $db->prepare("
+    SELECT c.*, u.username
+    FROM comments c
+    JOIN users u ON c.user_id = u.id
+    WHERE c.poem_id = :p
+    ORDER BY c.created_at DESC
+");
+$stmt->execute([':p' => $poem_id]);
 $comments = $stmt->fetchAll();
 
 $page_title = escape($poem['title']) . ' - ' . SITE_NAME;
@@ -59,125 +46,124 @@ include 'includes/header.php';
 ?>
 
 <div class="container poem-detail-container">
-    <div class="poem-detail">
-        <div class="poem-detail-header">
-            <h1 class="poem-detail-title"><?php echo escape($poem['title']); ?></h1>
-            
-            <div class="author-card">
-                <div class="author-avatar-large">
-                    <?php echo strtoupper(substr($poem['username'], 0, 1)); ?>
-                </div>
-                <div class="author-details">
-                    <a href="profile?user=<?php echo escape($poem['username']); ?>" class="author-name-large">
-                        <?php echo escape($poem['username']); ?>
-                    </a>
-                    <div class="poem-meta">
-                        <?php echo date('F j, Y', strtotime($poem['created_at'])); ?> • 
-                        <?php echo $poem['views_count']; ?> views
-                    </div>
-                </div>
-            </div>
-        </div>
+    <h1 class="poem-title"><?php echo escape($poem['title']); ?></h1>
+    <p class="poem-meta">By <?php echo escape($poem['username']); ?> • <?php echo $poem['views_count']; ?> views</p>
 
-        <div class="poem-detail-content">
-            <?php if ($poem['format'] === 'text'): ?>
-                <div class="poem-text">
-                    <?php echo nl2br(escape($poem['content'])); ?>
-                </div>
-            <?php elseif ($poem['format'] === 'image'): ?>
-                <div class="poem-image-full">
-                    <img src="<?php echo escape($poem['file_url']); ?>" alt="<?php echo escape($poem['title']); ?>">
-                </div>
-            <?php else: ?>
-                <div class="poem-document-full">
-                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                    </svg>
-                    <h3>Document Poem</h3>
-                    <a href="<?php echo escape($poem['file_url']); ?>" download class="btn btn-primary">
-                        Download Document
-                    </a>
-                </div>
-            <?php endif; ?>
+    <div class="poem-content">
+        <?php if ($poem['format'] === 'text'): ?>
+            <div><?php echo nl2br(escape($poem['content'])); ?></div>
+        <?php elseif ($poem['format'] === 'image'): ?>
+            <img src="<?php echo escape($poem['file_url']); ?>" alt="<?php echo escape($poem['title']); ?>" class="poem-image">
+        <?php else: ?>
+            <a href="<?php echo escape($poem['file_url']); ?>" download class="btn btn-primary">Download Document</a>
+        <?php endif; ?>
+    </div>
 
-            <?php if ($poem['tags']): ?>
-                <div class="poem-tags">
-                    <?php foreach (explode(',', $poem['tags']) as $tag): ?>
-                        <span class="tag"><?php echo escape(trim($tag)); ?></span>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-        </div>
+    <!-- Likes & Comments Stats -->
+    <div class="poem-actions">
+        <?php if (isLoggedIn()): ?>
+            <button id="likeBtn" class="btn like-btn <?php echo $user_liked ? 'liked' : 'not-liked'; ?>" onclick="toggleLike(<?php echo $poem['id']; ?>)">
+                ❤️ <span id="likeCount"><?php echo $poem['likes_count'] ?? 0; ?></span> Likes
+            </button>
+        <?php else: ?>
+            <a href="login.php" class="btn like-btn not-liked">
+                ❤️ <?php echo $poem['likes_count'] ?? 0; ?> Likes
+            </a>
+        <?php endif; ?>
+        <span class="comment-count">💬 <?php echo $poem['comments_count'] ?? 0; ?> Comments</span>
+    </div>
 
-        <div class="poem-actions">
-            <?php if (isLoggedIn()): ?>
-                <button 
-                    class="btn <?php echo $user_liked ? 'btn-liked' : 'btn-secondary'; ?>" 
-                    onclick="toggleLike(<?php echo $poem['id']; ?>)"
-                    id="likeBtn"
-                >
-                    ❤️ <span id="likeCount"><?php echo $poem['likes_count'] ?? 0; ?></span>
-                </button>
-            <?php else: ?>
-                <a href="login.php" class="btn btn-secondary">
-                    ❤️ <?php echo $poem['likes_count'] ?? 0; ?>
-                </a>
-            <?php endif; ?>
-            <span class="poem-stat-large">
-                💬 <?php echo $poem['comments_count'] ?? 0; ?> comments
-            </span>
-        </div>
+    <!-- Comments Section -->
+    <div class="comments-section">
+        <h2>Comments</h2>
+        <?php if (isLoggedIn()): ?>
+            <form onsubmit="submitComment(event, <?php echo $poem['id']; ?>)" class="comment-form">
+                <textarea id="commentContent" placeholder="Share your thoughts..." required></textarea>
+                <button type="submit" class="btn btn-primary">Post Comment</button>
+            </form>
+        <?php else: ?>
+            <p class="alert alert-info"><a href="login.php">Login</a> to comment.</p>
+        <?php endif; ?>
 
-        <div class="comments-section">
-            <h2>Comments</h2>
-
-            <?php if (isLoggedIn()): ?>
-                <form class="comment-form" onsubmit="submitComment(event, <?php echo $poem['id']; ?>)">
-                    <textarea 
-                        id="commentContent" 
-                        placeholder="Share your thoughts..." 
-                        rows="3" 
-                        required
-                    ></textarea>
-                    <button type="submit" class="btn btn-primary">Post Comment</button>
-                </form>
-            <?php else: ?>
-                <div class="alert">
-                    <a href="login.php">Login</a> to comment on this poem
-                </div>
-            <?php endif; ?>
-
-            <div id="commentsList" class="comments-list">
-                <?php foreach ($comments as $comment): ?>
-                    <div class="comment">
-                        <div class="comment-header">
-                            <div class="author-avatar-small">
-                                <?php echo strtoupper(substr($comment['username'], 0, 1)); ?>
-                            </div>
-                            <div>
-                                <a href="profile?user=<?php echo escape($comment['username']); ?>" class="comment-author">
-                                    <?php echo escape($comment['username']); ?>
-                                </a>
-                                <div class="comment-date">
-                                    <?php echo date('M j, Y \a\t g:i A', strtotime($comment['created_at'])); ?>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="comment-content">
-                            <?php echo nl2br(escape($comment['content'])); ?>
+        <div id="commentsList" class="comments-list">
+            <?php foreach ($comments as $c): ?>
+                <div class="comment-card">
+                    <div class="comment-header">
+                        <div class="comment-avatar"><?php echo strtoupper(substr($c['username'], 0, 1)); ?></div>
+                        <div class="comment-meta">
+                            <span class="comment-author"><?php echo escape($c['username']); ?></span>
+                            <span class="comment-date"><?php echo date('M j, Y \a\t g:i A', strtotime($c['created_at'])); ?></span>
                         </div>
                     </div>
-                <?php endforeach; ?>
-            </div>
+                    <div class="comment-body"><?php echo nl2br(escape($c['content'])); ?></div>
+                </div>
+            <?php endforeach; ?>
         </div>
     </div>
 </div>
 
 <script>
-const POEM_ID = <?php echo $poem['id']; ?>;
 const BASE_URL = '<?php echo BASE_URL; ?>';
 let isLiked = <?php echo $user_liked ? 'true' : 'false'; ?>;
+
+function toggleLike(poemId) {
+    fetch(BASE_URL + '/api/likes.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ poem_id: poemId })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('likeCount').textContent = data.likes_count;
+            const btn = document.getElementById('likeBtn');
+            if (data.liked) {
+                btn.classList.remove('not-liked'); btn.classList.add('liked');
+            } else {
+                btn.classList.remove('liked'); btn.classList.add('not-liked');
+            }
+        }
+    })
+    .catch(console.error);
+}
+
+function submitComment(e, poemId) {
+    e.preventDefault();
+    const c = document.getElementById('commentContent');
+    const content = c.value.trim();
+    if (!content) return;
+
+    fetch(BASE_URL + '/api/comments.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ poem_id: poemId, content: content })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            c.value = '';
+            const commentHtml = `
+            <div class="comment-card">
+                <div class="comment-header">
+                    <div class="comment-avatar">${data.comment.username.charAt(0).toUpperCase()}</div>
+                    <div class="comment-meta">
+                        <span class="comment-author">${data.comment.username}</span>
+                        <span class="comment-date">${new Date(data.comment.created_at).toLocaleString()}</span>
+                    </div>
+                </div>
+                <div class="comment-body">${escapeHtml(data.comment.content).replace(/\n/g,'<br>')}</div>
+            </div>`;
+            document.getElementById('commentsList').insertAdjacentHTML('afterbegin', commentHtml);
+        }
+    })
+    .catch(console.error);
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 </script>
 
 <?php include 'includes/footer.php'; ?>
