@@ -85,7 +85,7 @@ include 'includes/header.php';
 
 <div class="container write-container">
     <h1 class="page-title">Write Your Poem</h1>
-    <p class="page-subtitle">Share your creativity with the world</p>
+    <p class="page-subtitle">Share your creativity with the world.</p>
 
     <?php if ($error): ?>
         <div class="alert alert-error"><?php echo escape($error); ?></div>

@@ -1,27 +1,44 @@
-/* CSS Reset & Base Styles */
-* {
+/* ===== CSS Reset & Base ===== */
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
 :root {
-  --primary: #4d4a51;
-  --primary-dark: #000000;
-  --secondary: #a78bfa;
-  --background: #faf9f8;
+  --primary: #2d2b32;
+  --primary-dark: #1a181e;
+  --primary-light: #4d4a54;
+  --accent: #8b7ec8;
+  --accent-light: #b0a4e0;
+  --background: #f7f6f9;
   --surface: #ffffff;
-  --text: #1f2937;
-  --text-muted: #6b7280;
-  --border: #e5e7eb;
-  --error: #ef4444;
-  --success: #10b981;
-  --liked: #f43f5e;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --text: #1c1b20;
+  --text-secondary: #55535a;
+  --text-muted: #8a8890;
+  --border: #e4e2e8;
+  --border-light: #f0eef3;
+  --error: #d93025;
+  --error-bg: #fce8e6;
+  --success: #188038;
+  --success-bg: #e6f4ea;
+  --liked: #e8384f;
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.04);
   --radius: 12px;
   --radius-sm: 8px;
+  --radius-lg: 16px;
+  --transition: 0.2s ease;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -38,81 +55,125 @@ main {
   flex: 1;
 }
 
-/* Container */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
-/* Navbar */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ===== Container ===== */
+.container {
+  width: 100%;
+  max-width: 1120px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+/* ===== Navbar ===== */
 .navbar {
   background-color: var(--surface);
   border-bottom: 1px solid var(--border);
-  padding: 1rem 0;
+  padding: 0.75rem 0;
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-xs);
 }
 
 .navbar-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
 }
 
 .navbar-brand {
-  text-decoration: none;
-  color: var(--text);
+  flex-shrink: 0;
+  line-height: 0;
 }
 
 .logo-image {
-  height: 70px;
+  height: 52px;
   width: auto;
   display: block;
+  border-radius: 6px;
 }
 
 .navbar-menu {
   display: flex;
-  gap: 1.5rem;
+  gap: 0.5rem;
   align-items: center;
 }
 
 .nav-link {
-  color: var(--text-muted);
-  text-decoration: none;
+  color: var(--text-secondary);
   font-weight: 500;
-  transition: color 0.2s;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.875rem;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition), background-color var(--transition);
 }
 
 .nav-link:hover {
-  color: var(--primary);
+  color: var(--text);
+  background-color: var(--border-light);
 }
 
-/* Buttons */
+/* Admin link */
+.admin-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0.5rem 0.875rem;
+  background-color: var(--accent);
+  color: var(--surface);
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: background-color var(--transition);
+}
+
+.admin-link:hover {
+  background-color: var(--accent-light);
+  color: var(--surface);
+}
+
+/* ===== Buttons ===== */
 .btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
   padding: 0.625rem 1.25rem;
   border: none;
   border-radius: var(--radius-sm);
   font-weight: 600;
   font-size: 0.875rem;
+  font-family: inherit;
   cursor: pointer;
   text-decoration: none;
   text-align: center;
-  transition: all 0.2s;
+  transition: all var(--transition);
+  line-height: 1.4;
+  white-space: nowrap;
 }
 
 .btn-primary {
   background-color: var(--primary);
-  color: white;
+  color: var(--surface);
 }
 
 .btn-primary:hover {
   background-color: var(--primary-dark);
+  box-shadow: var(--shadow-sm);
   transform: translateY(-1px);
-  box-shadow: var(--shadow);
 }
 
 .btn-secondary {
@@ -123,99 +184,149 @@ main {
 
 .btn-secondary:hover {
   background-color: var(--background);
+  border-color: var(--text-muted);
 }
 
 .btn-liked {
   background-color: var(--liked);
-  color: white;
+  color: var(--surface);
 }
 
 .btn-liked:hover {
-  background-color: #e11d48;
+  background-color: #c42f43;
 }
 
 .btn-sm {
-  padding: 0.5rem 1rem;
-  font-size: 0.813rem;
+  padding: 0.4375rem 0.875rem;
+  font-size: 0.8125rem;
 }
 
 .btn-lg {
   padding: 0.875rem 2rem;
   font-size: 1rem;
+  border-radius: var(--radius);
 }
 
 .btn-block {
   width: 100%;
 }
 
-/* Hero Section */
+.btn-edit {
+  background-color: var(--accent);
+  color: var(--surface);
+  font-size: 0.8125rem;
+  padding: 0.375rem 0.75rem;
+}
+
+.btn-edit:hover {
+  background-color: var(--accent-light);
+  color: var(--surface);
+}
+
+.btn-delete {
+  background-color: var(--error);
+  color: var(--surface);
+  font-size: 0.8125rem;
+  padding: 0.375rem 0.75rem;
+}
+
+.btn-delete:hover {
+  background-color: #b8271e;
+  color: var(--surface);
+}
+
+.btn-save {
+  background-color: var(--success);
+  color: var(--surface);
+  font-size: 0.8125rem;
+  padding: 0.375rem 0.75rem;
+}
+
+.btn-save:hover {
+  background-color: #146a2e;
+  color: var(--surface);
+}
+
+/* ===== Hero Section ===== */
 .hero {
-  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
   padding: 4rem 0;
   text-align: center;
-  margin-bottom: 3rem;
 }
 
 .hero-title {
   font-size: 2.5rem;
   font-weight: 800;
-  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 0.75rem;
   color: var(--text);
 }
 
 .hero-subtitle {
   font-size: 1.125rem;
-  color: var(--text-muted);
-  margin-bottom: 2rem;
-  max-width: 600px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 520px;
   margin-left: auto;
   margin-right: auto;
+  margin-bottom: 1.75rem;
 }
 
-/* Search Section */
+/* ===== Search Section ===== */
 .search-section {
-  margin-bottom: 2rem;
+  padding-top: 2.5rem;
+  padding-bottom: 1.5rem;
 }
 
 .search-form {
   display: flex;
   gap: 0.75rem;
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .search-input {
   flex: 1;
-  padding: 0.75rem 1rem;
+  padding: 0.6875rem 1rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 1rem;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  background-color: var(--surface);
+  color: var(--text);
+  transition: border-color var(--transition), box-shadow var(--transition);
 }
 
 .search-input:focus {
   outline: none;
-  border-color: var(--primary);
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(45, 43, 50, 0.08);
 }
 
-/* Poems Grid */
+/* ===== Poems Grid ===== */
 .poems-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 3rem;
+  padding-bottom: 3rem;
 }
 
-/* Poem Card */
+/* ===== Poem Card ===== */
 .poem-card {
+  display: flex;
+  flex-direction: column;
   background-color: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 1.5rem;
-  transition: all 0.2s;
+  overflow: hidden;
+  transition: transform var(--transition), box-shadow var(--transition);
 }
 
 .poem-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   box-shadow: var(--shadow-lg);
 }
 
@@ -223,7 +334,7 @@ main {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  padding: 1.25rem 1.25rem 0;
 }
 
 .author-info {
@@ -233,63 +344,69 @@ main {
 }
 
 .author-avatar {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  background: linear-gradient(135deg, var(--primary), var(--accent));
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--surface);
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+  line-height: 1;
 }
 
 .author-name {
   font-weight: 600;
+  font-size: 0.875rem;
   color: var(--text);
-  text-decoration: none;
+  display: block;
+  line-height: 1.3;
 }
 
 .author-name:hover {
-  color: var(--primary);
+  color: var(--accent);
 }
 
 .poem-date {
-  font-size: 0.813rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
+  line-height: 1.3;
 }
 
 .poem-link {
-  text-decoration: none;
-  color: inherit;
   display: block;
+  padding: 1rem 1.25rem;
+  flex: 1;
+}
+
+.poem-link:hover {
+  text-decoration: none;
 }
 
 .poem-title {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 700;
-  margin-bottom: 0.75rem;
+  line-height: 1.4;
+  margin-bottom: 0.5rem;
   color: var(--text);
 }
 
 .poem-content {
-  color: var(--text-muted);
-  font-size: 0.938rem;
-  line-height: 1.6;
-  margin-bottom: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.7;
   white-space: pre-wrap;
 }
 
 .poem-image {
   width: 100%;
-  max-height: 500px;   
-  object-fit: contain;
   height: 200px;
   overflow: hidden;
+  background-color: var(--border-light);
   border-radius: var(--radius-sm);
-  margin-bottom: 1rem;
-  background-color: #f9f9f9;
 }
 
 .poem-image img {
@@ -302,42 +419,52 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 0.5rem;
   padding: 2rem;
   background-color: var(--background);
   border-radius: var(--radius-sm);
-  margin-bottom: 1rem;
   color: var(--text-muted);
 }
 
 .poem-card-footer {
   display: flex;
+  align-items: center;
   gap: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border);
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--border-light);
+  margin-top: auto;
 }
 
 .poem-stat {
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: var(--text-muted);
 }
 
-/* Auth Pages */
+.owner-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+  align-items: center;
+}
+
+/* ===== Auth Pages ===== */
 .auth-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 2rem;
+  background-color: var(--background);
 }
 
 .auth-card {
   background-color: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   padding: 2.5rem;
   max-width: 420px;
   width: 100%;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow);
 }
 
 .auth-header {
@@ -346,12 +473,15 @@ main {
 }
 
 .auth-header h1 {
-  font-size: 1.875rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.375rem;
 }
 
 .auth-header p {
-  color: var(--text-muted);
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
 }
 
 .auth-form {
@@ -365,121 +495,156 @@ main {
 .form-group label {
   display: block;
   font-weight: 600;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
+  margin-bottom: 0.375rem;
+  color: var(--text);
 }
 
 .form-group input,
 .form-group textarea,
 .form-group select {
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.6875rem 0.875rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  font-size: 1rem;
+  font-size: 0.9375rem;
   font-family: inherit;
+  color: var(--text);
+  background-color: var(--surface);
+  transition: border-color var(--transition), box-shadow var(--transition);
 }
 
 .form-group input:focus,
-.form-group textarea:focus {
+.form-group textarea:focus,
+.form-group select:focus {
   outline: none;
-  border-color: var(--primary);
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(45, 43, 50, 0.08);
 }
 
-.form-group small {
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--text-muted);
+}
+
+.form-group small,
+.form-text {
   display: block;
   margin-top: 0.375rem;
-  font-size: 0.813rem;
+  font-size: 0.8125rem;
   color: var(--text-muted);
 }
 
 .auth-footer {
   text-align: center;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border-light);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
 }
 
 .auth-footer a {
-  color: var(--primary);
+  color: var(--accent);
   font-weight: 600;
-  text-decoration: none;
 }
 
 .auth-footer a:hover {
   text-decoration: underline;
 }
 
-/* Alerts */
+/* ===== Alerts ===== */
 .alert {
-  padding: 1rem;
+  padding: 0.875rem 1rem;
   border-radius: var(--radius-sm);
   margin-bottom: 1.5rem;
-  font-size: 0.938rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 .alert-error {
-  background-color: #fee;
+  background-color: var(--error-bg);
   color: var(--error);
-  border: 1px solid var(--error);
+  border: 1px solid rgba(217, 48, 37, 0.2);
 }
 
 .alert-success {
-  background-color: #d1fae5;
-  color: #065f46;
-  border: 1px solid var(--success);
+  background-color: var(--success-bg);
+  color: var(--success);
+  border: 1px solid rgba(24, 128, 56, 0.2);
 }
 
-/* Write Page */
+.alert-info {
+  background-color: var(--border-light);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.alert a {
+  color: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+/* ===== Write Page ===== */
 .write-container {
-  max-width: 800px;
-  margin: 3rem auto;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 2.5rem 1.5rem 4rem;
 }
 
-.write-header {
+.page-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.25rem;
+  text-align: center;
+}
+
+.page-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
   text-align: center;
   margin-bottom: 2rem;
 }
 
-.write-header h1 {
-  font-size: 2rem;
-  margin-bottom: 0.5rem;
-}
-
-.write-header p {
-  color: var(--text-muted);
-}
-
-.write-card {
+.poem-form {
   background-color: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   padding: 2rem;
 }
 
 .format-tabs {
   display: flex;
   gap: 0.5rem;
-  margin-top: 0.5rem;
+  margin-top: 0.25rem;
 }
 
 .format-tab {
   flex: 1;
-  padding: 0.75rem;
+  padding: 0.625rem;
   background-color: var(--background);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   font-weight: 600;
+  font-size: 0.875rem;
+  font-family: inherit;
   cursor: pointer;
-  transition: all 0.2s;
+  color: var(--text-secondary);
+  text-align: center;
+  transition: all var(--transition);
 }
 
 .format-tab:hover {
   background-color: var(--surface);
+  border-color: var(--text-muted);
+  color: var(--text);
 }
 
 .format-tab.active {
   background-color: var(--primary);
-  color: white;
+  color: var(--surface);
   border-color: var(--primary);
 }
 
@@ -493,21 +658,347 @@ main {
 
 .form-actions {
   display: flex;
-  gap: 1rem;
+  gap: 0.75rem;
   justify-content: flex-end;
   margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-light);
 }
 
-/* Poem Detail */
+/* ===== Poem Detail ===== */
 .poem-detail-container {
-  max-width: 800px;
-  margin: 3rem auto;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 2.5rem;
+  padding-bottom: 4rem;
 }
 
+.poem-detail-container > .poem-title {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+}
+
+.poem-detail-container > .poem-meta {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.poem-detail-container > .poem-content {
+  font-size: 1.0625rem;
+  line-height: 1.85;
+  color: var(--text);
+  padding-bottom: 2rem;
+  white-space: pre-wrap;
+}
+
+.poem-detail-container > .poem-content .poem-image {
+  height: auto;
+  max-height: 600px;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.poem-detail-container > .poem-content img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+}
+
+/* Like / Comment bar */
+.poem-actions {
+  display: flex;
+  gap: 1.25rem;
+  align-items: center;
+  padding: 1.25rem 0;
+  border-top: 1px solid var(--border-light);
+  border-bottom: 1px solid var(--border-light);
+  margin-bottom: 2rem;
+}
+
+.like-btn {
+  cursor: pointer;
+}
+
+.like-btn.not-liked {
+  background-color: var(--background);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.like-btn.not-liked:hover {
+  background-color: var(--border-light);
+}
+
+.like-btn.liked {
+  background-color: var(--liked);
+  color: var(--surface);
+  border: 1px solid var(--liked);
+}
+
+.like-btn.liked:hover {
+  background-color: #c42f43;
+}
+
+.comment-count {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.poem-stat-large {
+  font-size: 0.9375rem;
+  color: var(--text-muted);
+}
+
+/* ===== Comments ===== */
+.comments-section {
+  margin-top: 0;
+}
+
+.comments-section h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+}
+
+.comment-form {
+  margin-bottom: 2rem;
+}
+
+.comment-form textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 0.9375rem;
+  color: var(--text);
+  resize: vertical;
+  min-height: 80px;
+  margin-bottom: 0.75rem;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.comment-form textarea:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(45, 43, 50, 0.08);
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.comment,
+.comment-card {
+  padding: 1.25rem;
+  background-color: var(--background);
+  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+}
+
+.comment-header {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.comment-avatar,
+.author-avatar-small {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--surface);
+  font-weight: 700;
+  font-size: 0.8125rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.comment-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.comment-author {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text);
+}
+
+.comment-author:hover {
+  color: var(--accent);
+}
+
+.comment-date {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.comment-content,
+.comment-body {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+/* ===== Profile Page ===== */
+.profile-container {
+  padding-top: 2.5rem;
+  padding-bottom: 4rem;
+}
+
+.profile-header {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  padding: 2rem;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 2.5rem;
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--surface);
+  font-weight: 700;
+  font-size: 2.5rem;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-info h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  margin-bottom: 0.125rem;
+  color: var(--text);
+}
+
+.profile-info > p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+.profile-stats {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border-light);
+}
+
+.profile-stats span {
+  white-space: nowrap;
+}
+
+.profile-stats strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* Profile poems heading */
+.profile-container > h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 1.25rem;
+  color: var(--text);
+}
+
+/* Profile poem card specific overrides */
+.profile-container .poem-card {
+  padding: 1.25rem;
+}
+
+.profile-container .poem-title {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.profile-container .poem-title .title-text {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.profile-container .poem-title .poem-status {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.125rem 0.5rem;
+  border-radius: 999px;
+  background-color: var(--border-light);
+}
+
+.status-approved {
+  color: var(--success) !important;
+  background-color: var(--success-bg) !important;
+}
+
+.status-rejected {
+  color: var(--error) !important;
+  background-color: var(--error-bg) !important;
+}
+
+.status-pending {
+  color: #b45309 !important;
+  background-color: #fef3c7 !important;
+}
+
+.profile-container .poem-content {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.profile-container .poem-image {
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: var(--radius-sm);
+}
+
+.profile-container .poem-card-footer {
+  padding: 1rem 0 0;
+  border-top: 1px solid var(--border-light);
+}
+
+/* ===== Poem Detail Page Specific ===== */
 .poem-detail {
   background-color: var(--surface);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   padding: 2.5rem;
 }
 
@@ -516,8 +1007,10 @@ main {
 }
 
 .poem-detail-title {
-  font-size: 2.25rem;
-  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin-bottom: 1.25rem;
   line-height: 1.3;
 }
 
@@ -531,50 +1024,42 @@ main {
 }
 
 .author-avatar-large {
-  width: 60px;
-  height: 60px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  background: linear-gradient(135deg, var(--primary), var(--accent));
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: var(--surface);
   font-weight: 700;
-  font-size: 1.5rem;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  line-height: 1;
 }
 
 .author-name-large {
   font-weight: 700;
-  font-size: 1.125rem;
+  font-size: 1rem;
   color: var(--text);
-  text-decoration: none;
 }
 
 .author-name-large:hover {
-  color: var(--primary);
-}
-
-.poem-meta {
-  font-size: 0.875rem;
-  color: var(--text-muted);
-}
-
-.poem-detail-content {
-  margin-bottom: 2rem;
+  color: var(--accent);
 }
 
 .poem-text {
-  font-size: 1.125rem;
-  line-height: 1.8;
+  font-size: 1.0625rem;
+  line-height: 1.85;
   white-space: pre-wrap;
-  padding: 2rem 0;
+  padding: 1.5rem 0;
 }
 
 .poem-image-full {
   width: 100%;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius);
   overflow: hidden;
-  margin: 2rem 0;
+  margin: 1.5rem 0;
 }
 
 .poem-image-full img {
@@ -587,11 +1072,11 @@ main {
   padding: 3rem;
   background-color: var(--background);
   border-radius: var(--radius-sm);
-  margin: 2rem 0;
+  margin: 1.5rem 0;
 }
 
 .poem-document-full h3 {
-  margin: 1rem 0;
+  margin: 0.75rem 0;
 }
 
 .poem-tags {
@@ -603,160 +1088,14 @@ main {
 
 .tag {
   background-color: var(--background);
-  padding: 0.375rem 0.875rem;
+  padding: 0.3125rem 0.75rem;
   border-radius: 999px;
-  font-size: 0.813rem;
-  color: var(--text-muted);
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-light);
 }
 
-.poem-actions {
-  display: flex;
-  gap: 1.5rem;
-  align-items: center;
-  padding: 1.5rem 0;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-}
-
-.poem-stat-large {
-  font-size: 1rem;
-  color: var(--text-muted);
-}
-
-/* Comments */
-.comments-section {
-  margin-top: 2rem;
-}
-
-.comments-section h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.comment-form {
-  margin-bottom: 2rem;
-}
-
-.comment-form textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  font-family: inherit;
-  margin-bottom: 0.75rem;
-  resize: vertical;
-}
-
-.comments-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.comment {
-  padding: 1.25rem;
-  background-color: var(--background);
-  border-radius: var(--radius-sm);
-}
-
-.comment-header {
-  display: flex;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.author-avatar-small {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 700;
-  font-size: 0.875rem;
-  flex-shrink: 0;
-}
-
-.comment-author {
-  font-weight: 600;
-  color: var(--text);
-  text-decoration: none;
-}
-
-.comment-author:hover {
-  color: var(--primary);
-}
-
-.comment-date {
-  font-size: 0.813rem;
-  color: var(--text-muted);
-}
-
-.comment-content {
-  line-height: 1.6;
-  color: var(--text);
-}
-
-/* Profile */
-.profile-container {
-  margin: 3rem auto;
-}
-
-.profile-header {
-  display: flex;
-  gap: 2rem;
-  align-items: center;
-  padding: 2rem;
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  margin-bottom: 2rem;
-}
-
-.profile-avatar {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 700;
-  font-size: 3rem;
-  flex-shrink: 0;
-}
-
-.profile-name {
-  font-size: 1.875rem;
-  margin-bottom: 0.25rem;
-}
-
-.profile-username {
-  color: var(--text-muted);
-  margin-bottom: 0.75rem;
-}
-
-.profile-bio {
-  margin-bottom: 1rem;
-  line-height: 1.6;
-}
-
-.profile-stats {
-  display: flex;
-  gap: 2rem;
-  font-size: 0.938rem;
-  color: var(--text-muted);
-}
-
-.profile-poems h2 {
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-/* Empty State */
+/* ===== Empty State ===== */
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
@@ -764,24 +1103,39 @@ main {
 }
 
 .empty-state h3 {
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.375rem;
+  color: var(--text-secondary);
 }
 
-/* Footer */
+.empty-state p {
+  font-size: 0.9375rem;
+}
+
+/* ===== Footer ===== */
 .footer {
   background-color: var(--surface);
   border-top: 1px solid var(--border);
-  padding: 2rem 0;
-  margin-top: 4rem;
+  padding: 1.5rem 0;
+  margin-top: auto;
   text-align: center;
   color: var(--text-muted);
+  font-size: 0.875rem;
 }
 
-/* Responsive */
+/* ===== Responsive ===== */
 @media (max-width: 768px) {
+  .hero {
+    padding: 3rem 0;
+  }
+
   .hero-title {
-    font-size: 2rem;
+    font-size: 1.875rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
   }
 
   .poems-grid {
@@ -789,12 +1143,28 @@ main {
   }
 
   .navbar-menu {
-    gap: 1rem;
+    gap: 0.25rem;
+  }
+
+  .nav-link {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.8125rem;
   }
 
   .profile-header {
     flex-direction: column;
     text-align: center;
+    padding: 1.5rem;
+  }
+
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    font-size: 2rem;
+  }
+
+  .profile-info h1 {
+    font-size: 1.25rem;
   }
 
   .profile-stats {
@@ -803,5 +1173,79 @@ main {
 
   .search-form {
     flex-direction: column;
+  }
+
+  .search-form .btn {
+    width: 100%;
+  }
+
+  .poem-detail-container {
+    padding-top: 1.5rem;
+  }
+
+  .poem-detail-container > .poem-title {
+    font-size: 1.5rem;
+  }
+
+  .poem-detail {
+    padding: 1.5rem;
+  }
+
+  .write-container {
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .poem-form {
+    padding: 1.25rem;
+  }
+
+  .auth-card {
+    padding: 1.75rem;
+  }
+
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .hero-title {
+    font-size: 1.625rem;
+  }
+
+  .logo-image {
+    height: 40px;
+  }
+
+  .navbar-menu {
+    gap: 0.125rem;
+  }
+
+  .nav-link {
+    padding: 0.375rem;
+    font-size: 0.75rem;
+  }
+
+  .btn-sm {
+    padding: 0.375rem 0.625rem;
+    font-size: 0.75rem;
+  }
+
+  .profile-stats {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .owner-actions {
+    flex-wrap: wrap;
   }
 }

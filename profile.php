@@ -50,7 +50,7 @@ include 'includes/header.php';
             <h1><?php echo escape($user['full_name'] ?: $user['username']); ?></h1>
             <p>@<?php echo escape($user['username']); ?></p>
             <?php if ($user['bio']): ?>
-                <p><?php echo nl2br(escape($user['bio'])); ?></p>
+                <p style="color: var(--text-secondary); margin-bottom: 0;"><?php echo nl2br(escape($user['bio'])); ?></p>
             <?php endif; ?>
             <div class="profile-stats">
                 <span><strong><?php echo $stats['poems_count']; ?></strong> poems</span>
@@ -74,12 +74,8 @@ include 'includes/header.php';
                     <h3 class="poem-title" id="title-<?php echo $poem['id']; ?>">
                         <span class="title-text"><?php echo escape($poem['title']); ?></span>
                         <?php if(!empty($poem['status'])): ?>
-                            <span class="poem-status" style="font-size:0.8em; color:
-                                <?php
-                                    echo $poem['status'] === 'approved' ? 'green' :
-                                         ($poem['status'] === 'rejected' ? 'red' : 'orange');
-                                ?>;">
-                                (<?php echo ucfirst($poem['status']); ?>)
+                            <span class="poem-status status-<?php echo $poem['status']; ?>">
+                                <?php echo ucfirst($poem['status']); ?>
                             </span>
                         <?php endif; ?>
                     </h3>
@@ -89,7 +85,7 @@ include 'includes/header.php';
                         <p class="poem-content" id="content-<?php echo $poem['id']; ?>"><?php echo escape($poem['content']); ?></p>
                     <?php elseif ($poem['format'] === 'image'): ?>
                         <div class="poem-image">
-                            <img src="<?php echo escape($poem['file_url']); ?>" alt="" style="width:100%; height:auto; object-fit:contain;">
+                            <img src="<?php echo escape($poem['file_url']); ?>" alt="<?php echo escape($poem['title']); ?>">
                         </div>
                     <?php else: ?>
                         <p>📄 Document poem</p>
