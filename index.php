@@ -55,13 +55,14 @@ include 'includes/header.php';
 
 <div class="container">
     <div class="search-section">
-        <form method="GET" action="index.php" class="search-form">
+        <form method="GET" action="index.php" class="search-form" role="search">
             <input 
                 type="text" 
                 name="search" 
-                placeholder="Search poems..." 
+                placeholder="Search poems by title, content, or tag..." 
                 value="<?php echo escape($search); ?>"
                 class="search-input"
+                aria-label="Search poems"
             >
             <button type="submit" class="btn btn-primary">Search</button>
         </form>

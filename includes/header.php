@@ -20,21 +20,7 @@ $is_admin = $_SESSION['is_admin'] ?? 0; // 1 if admin, 0 if not
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $page_title ?? SITE_NAME; ?></title>
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/style.css">
-    <style>
-        /* Admin link style */
-        .admin-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 5px 10px;
-            background-color: #ff9800;
-            color: white;
-            border-radius: 4px;
-            text-decoration: none;
-            font-weight: bold;
-        }
-        .admin-link:hover { background-color: #e68900; }
-    </style>
+
     <script>
         const BASE_URL = "<?php echo BASE_URL; ?>";
         const SESSION_USER = {

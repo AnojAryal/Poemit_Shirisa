@@ -54,13 +54,17 @@ const BASE_URL = '<?php echo BASE_URL; ?>';
 
 <div class="container poem-detail-container">
     <h1 class="poem-title"><?php echo escape($poem['title']); ?></h1>
-    <p class="poem-meta">By <?php echo escape($poem['username']); ?> • <?php echo $poem['views_count']; ?> views</p>
+    <p class="poem-meta">
+        By <a href="profile.php?user=<?php echo escape($poem['username']); ?>" style="font-weight:600; color:var(--text);"><?php echo escape($poem['username']); ?></a>
+        &middot; <?php echo date('M j, Y', strtotime($poem['created_at'])); ?>
+        &middot; <?php echo $poem['views_count']; ?> views
+    </p>
 
     <div class="poem-content">
         <?php if ($poem['format'] === 'text'): ?>
             <div><?php echo nl2br(escape($poem['content'])); ?></div>
         <?php elseif ($poem['format'] === 'image'): ?>
-            <img src="<?php echo escape($poem['file_url']); ?>" alt="<?php echo escape($poem['title']); ?>" class="poem-image">
+            <img src="<?php echo escape($poem['file_url']); ?>" alt="<?php echo escape($poem['title']); ?>" style="width:100%; border-radius:var(--radius); height:auto;">
         <?php else: ?>
             <a href="<?php echo escape($poem['file_url']); ?>" download class="btn btn-primary">Download Document</a>
         <?php endif; ?>
