@@ -1,4 +1,4 @@
-const BASE_URL = "https://your-base-url.com" // Declare BASE_URL variable
+const BASE_URL = "https://your-base-url.com"
 
 // Format tab switching in write page
 document.addEventListener("DOMContentLoaded", () => {

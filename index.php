@@ -9,23 +9,27 @@ $search = trim($_GET['search'] ?? '');
 
 // Build query
 if ($search) {
-    $query = "SELECT p.*, u.username, u.avatar_url,
-              ps.likes_count, ps.comments_count
-              FROM poems p
-              JOIN users u ON p.user_id = u.id
-              LEFT JOIN poem_stats ps ON p.id = ps.poem_id
-              WHERE p.is_published = 1 
-              AND (p.title LIKE :search OR p.content LIKE :search OR p.tags LIKE :search)
-              ORDER BY p.created_at DESC";
+    $query = "
+        SELECT p.*, u.username, u.avatar_url,
+               ps.likes_count, ps.comments_count
+        FROM poems p
+        JOIN users u ON p.user_id = u.id
+        LEFT JOIN poem_stats ps ON p.id = ps.poem_id
+        WHERE p.status = 'approved'
+          AND (p.title LIKE :search OR p.content LIKE :search OR p.tags LIKE :search)
+        ORDER BY p.created_at DESC
+    ";
     $search_param = "%$search%";
 } else {
-    $query = "SELECT p.*, u.username, u.avatar_url,
-              ps.likes_count, ps.comments_count
-              FROM poems p
-              JOIN users u ON p.user_id = u.id
-              LEFT JOIN poem_stats ps ON p.id = ps.poem_id
-              WHERE p.is_published = 1
-              ORDER BY p.created_at DESC";
+    $query = "
+        SELECT p.*, u.username, u.avatar_url,
+               ps.likes_count, ps.comments_count
+        FROM poems p
+        JOIN users u ON p.user_id = u.id
+        LEFT JOIN poem_stats ps ON p.id = ps.poem_id
+        WHERE p.status = 'approved'
+        ORDER BY p.created_at DESC
+    ";
 }
 
 $stmt = $db->prepare($query);
@@ -78,7 +82,7 @@ include 'includes/header.php';
                                 <?php echo strtoupper(substr($poem['username'], 0, 1)); ?>
                             </div>
                             <div>
-                                <a href="profile?user=<?php echo escape($poem['username']); ?>" class="author-name">
+                                <a href="profile.php?user=<?php echo escape($poem['username']); ?>" class="author-name">
                                     <?php echo escape($poem['username']); ?>
                                 </a>
                                 <div class="poem-date">
@@ -88,7 +92,7 @@ include 'includes/header.php';
                         </div>
                     </div>
 
-                    <a href="poem?id=<?php echo $poem['id']; ?>" class="poem-link">
+                    <a href="poem.php?id=<?php echo $poem['id']; ?>" class="poem-link">
                         <h2 class="poem-title"><?php echo escape($poem['title']); ?></h2>
                         
                         <?php if ($poem['format'] === 'text'): ?>

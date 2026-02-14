@@ -8,19 +8,22 @@ $db = (new Database())->getConnection();
 
 // Get poem + author + stats
 $stmt = $db->prepare("
-    SELECT p.*, u.username, u.avatar_url, u.bio, ps.likes_count, ps.comments_count
+    SELECT p.*, u.username, u.avatar_url, u.bio,
+           ps.likes_count, ps.comments_count
     FROM poems p
     JOIN users u ON p.user_id = u.id
     LEFT JOIN poem_stats ps ON p.id = ps.poem_id
-    WHERE p.id = :id AND p.is_published = 1
+    WHERE p.id = :id AND p.status = 'approved'
+    LIMIT 1
 ");
-$stmt->bindParam(':id', $poem_id);
+$stmt->bindParam(':id', $poem_id, PDO::PARAM_INT);
 $stmt->execute();
 $poem = $stmt->fetch();
 if (!$poem) redirect('/');
 
 // Increment views
-$db->prepare("UPDATE poems SET views_count = views_count + 1 WHERE id = :id")->execute([':id' => $poem_id]);
+$db->prepare("UPDATE poems SET views_count = views_count + 1 WHERE id = :id")
+   ->execute([':id' => $poem_id]);
 
 // Check if user liked
 $user_liked = false;
@@ -45,6 +48,10 @@ $page_title = escape($poem['title']) . ' - ' . SITE_NAME;
 include 'includes/header.php';
 ?>
 
+<script>
+const BASE_URL = '<?php echo BASE_URL; ?>';
+</script>
+
 <div class="container poem-detail-container">
     <h1 class="poem-title"><?php echo escape($poem['title']); ?></h1>
     <p class="poem-meta">By <?php echo escape($poem['username']); ?> • <?php echo $poem['views_count']; ?> views</p>
@@ -62,7 +69,7 @@ include 'includes/header.php';
     <!-- Likes & Comments Stats -->
     <div class="poem-actions">
         <?php if (isLoggedIn()): ?>
-            <button id="likeBtn" class="btn like-btn <?php echo $user_liked ? 'liked' : 'not-liked'; ?>" onclick="toggleLike(<?php echo $poem['id']; ?>)">
+            <button id="likeBtn" data-poem-id="<?php echo $poem['id']; ?>" class="btn like-btn <?php echo $user_liked ? 'liked' : 'not-liked'; ?>">
                 ❤️ <span id="likeCount"><?php echo $poem['likes_count'] ?? 0; ?></span> Likes
             </button>
         <?php else: ?>
@@ -77,7 +84,7 @@ include 'includes/header.php';
     <div class="comments-section">
         <h2>Comments</h2>
         <?php if (isLoggedIn()): ?>
-            <form onsubmit="submitComment(event, <?php echo $poem['id']; ?>)" class="comment-form">
+            <form class="comment-form" data-poem-id="<?php echo $poem['id']; ?>">
                 <textarea id="commentContent" placeholder="Share your thoughts..." required></textarea>
                 <button type="submit" class="btn btn-primary">Post Comment</button>
             </form>
@@ -103,63 +110,89 @@ include 'includes/header.php';
 </div>
 
 <script>
-const BASE_URL = '<?php echo BASE_URL; ?>';
-let isLiked = <?php echo $user_liked ? 'true' : 'false'; ?>;
+// Wait until DOM loads
+document.addEventListener("DOMContentLoaded", () => {
+    const likeBtn = document.getElementById("likeBtn");
+    const commentForm = document.querySelector(".comment-form");
 
-function toggleLike(poemId) {
+    // Like toggle
+    if (likeBtn) {
+        likeBtn.addEventListener("click", () => {
+            const poemId = likeBtn.dataset.poemId;
+            toggleLike(poemId);
+        });
+    }
+
+    // Comment submit
+    if (commentForm) {
+        commentForm.addEventListener("submit", (e) => {
+            const poemId = commentForm.dataset.poemId;
+            submitComment(e, poemId);
+        });
+    }
+});
+
+// Toggle like
+function toggleLike(poemId){
+    const likeBtn = document.getElementById("likeBtn");
+    const likeCount = document.getElementById("likeCount");
+
     fetch(BASE_URL + '/api/likes.php', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type':'application/json' },
         body: JSON.stringify({ poem_id: poemId })
     })
     .then(res => res.json())
     .then(data => {
-        if (data.success) {
-            document.getElementById('likeCount').textContent = data.likes_count;
-            const btn = document.getElementById('likeBtn');
-            if (data.liked) {
-                btn.classList.remove('not-liked'); btn.classList.add('liked');
+        if(data.success){
+            likeCount.textContent = data.likes_count;
+            if(data.liked){
+                likeBtn.classList.remove('not-liked');
+                likeBtn.classList.add('liked');
             } else {
-                btn.classList.remove('liked'); btn.classList.add('not-liked');
+                likeBtn.classList.remove('liked');
+                likeBtn.classList.add('not-liked');
             }
-        }
+        } else alert(data.error || 'Error updating like');
     })
     .catch(console.error);
 }
 
-function submitComment(e, poemId) {
+// Submit comment
+function submitComment(e, poemId){
     e.preventDefault();
-    const c = document.getElementById('commentContent');
-    const content = c.value.trim();
-    if (!content) return;
+    const textarea = document.getElementById('commentContent');
+    const content = textarea.value.trim();
+    if(!content) return;
 
     fetch(BASE_URL + '/api/comments.php', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ poem_id: poemId, content: content })
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ poem_id:poemId, content: content })
     })
-    .then(res => res.json())
-    .then(data => {
-        if (data.success) {
-            c.value = '';
-            const commentHtml = `
+    .then(res=>res.json())
+    .then(data=>{
+        if(data.success){
+            textarea.value='';
+            const c = data.comment;
+            const html = `
             <div class="comment-card">
                 <div class="comment-header">
-                    <div class="comment-avatar">${data.comment.username.charAt(0).toUpperCase()}</div>
+                    <div class="comment-avatar">${c.username.charAt(0).toUpperCase()}</div>
                     <div class="comment-meta">
-                        <span class="comment-author">${data.comment.username}</span>
-                        <span class="comment-date">${new Date(data.comment.created_at).toLocaleString()}</span>
+                        <span class="comment-author">${c.username}</span>
+                        <span class="comment-date">${new Date(c.created_at).toLocaleString()}</span>
                     </div>
                 </div>
-                <div class="comment-body">${escapeHtml(data.comment.content).replace(/\n/g,'<br>')}</div>
+                <div class="comment-body">${escapeHtml(c.content).replace(/\n/g,'<br>')}</div>
             </div>`;
-            document.getElementById('commentsList').insertAdjacentHTML('afterbegin', commentHtml);
-        }
+            document.getElementById('commentsList').insertAdjacentHTML('afterbegin', html);
+        } else alert(data.error || 'Error posting comment');
     })
     .catch(console.error);
 }
 
-function escapeHtml(text) {
+function escapeHtml(text){
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;

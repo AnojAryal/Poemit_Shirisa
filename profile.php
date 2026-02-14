@@ -9,7 +9,7 @@ $db = (new Database())->getConnection();
 /* ---------------- USER INFO ---------------- */
 $stmt = $db->prepare("SELECT id, username, full_name, bio, avatar_url, created_at FROM users WHERE username = :username");
 $stmt->execute([':username' => $username]);
-$user = $stmt->fetch();
+$user = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$user) redirect('/');
 
 /* ---------------- CHECK OWNER ---------------- */
@@ -24,18 +24,18 @@ $stmt = $db->prepare("
     ORDER BY p.created_at DESC
 ");
 $stmt->execute([':user_id' => $user['id']]);
-$poems = $stmt->fetchAll();
+$poems = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 /* ---------------- USER STATS ---------------- */
 $stmt = $db->prepare("
-    SELECT COUNT(DISTINCT p.id) as poems_count,
-           COALESCE(SUM(ps.likes_count),0) as total_likes
+    SELECT COUNT(DISTINCT p.id) AS poems_count,
+           COALESCE(SUM(ps.likes_count),0) AS total_likes
     FROM poems p
     LEFT JOIN poem_stats ps ON p.id = ps.poem_id
     WHERE p.user_id = :user_id
 ");
 $stmt->execute([':user_id' => $user['id']]);
-$stats = $stmt->fetch();
+$stats = $stmt->fetch(PDO::FETCH_ASSOC);
 
 $page_title = escape($user['username']) . ' - ' . SITE_NAME;
 include 'includes/header.php';
@@ -70,8 +70,21 @@ include 'includes/header.php';
             <?php foreach ($poems as $poem): ?>
                 <article class="poem-card" id="poem-<?php echo $poem['id']; ?>">
 
-                    <h3 class="poem-title" id="title-<?php echo $poem['id']; ?>"><?php echo escape($poem['title']); ?></h3>
+                    <!-- Title + status -->
+                    <h3 class="poem-title" id="title-<?php echo $poem['id']; ?>">
+                        <span class="title-text"><?php echo escape($poem['title']); ?></span>
+                        <?php if(!empty($poem['status'])): ?>
+                            <span class="poem-status" style="font-size:0.8em; color:
+                                <?php
+                                    echo $poem['status'] === 'approved' ? 'green' :
+                                         ($poem['status'] === 'rejected' ? 'red' : 'orange');
+                                ?>;">
+                                (<?php echo ucfirst($poem['status']); ?>)
+                            </span>
+                        <?php endif; ?>
+                    </h3>
 
+                    <!-- Poem content -->
                     <?php if ($poem['format'] === 'text'): ?>
                         <p class="poem-content" id="content-<?php echo $poem['id']; ?>"><?php echo escape($poem['content']); ?></p>
                     <?php elseif ($poem['format'] === 'image'): ?>
@@ -82,6 +95,7 @@ include 'includes/header.php';
                         <p>📄 Document poem</p>
                     <?php endif; ?>
 
+                    <!-- Footer -->
                     <div class="poem-card-footer">
                         <span>❤️ <?php echo $poem['likes_count'] ?? 0; ?></span>
                         <span>💬 <?php echo $poem['comments_count'] ?? 0; ?></span>
@@ -121,13 +135,13 @@ function deletePoem(id){
 }
 
 function enableEdit(id){
-    const titleEl = document.getElementById('title-' + id);
+    const titleEl = document.querySelector('#title-' + id + ' .title-text');
     const contentEl = document.getElementById('content-' + id);
 
-    // Replace with input/textarea
+    // Title input without status
     const titleInput = document.createElement('input');
     titleInput.type = 'text';
-    titleInput.value = titleEl.textContent;
+    titleInput.value = titleEl.textContent.trim();
     titleInput.id = 'title-input-' + id;
     titleEl.replaceWith(titleInput);
 
@@ -138,7 +152,6 @@ function enableEdit(id){
         contentEl.replaceWith(contentInput);
     }
 
-    // Show file input and save button
     document.querySelector(`#poem-${id} .file-input`).style.display = 'inline-block';
     document.querySelector(`#poem-${id} .btn-save`).style.display = 'inline-block';
     document.querySelector(`#poem-${id} .btn-edit`).style.display = 'none';
@@ -156,7 +169,7 @@ function savePoem(id){
     if(fileInput && fileInput.files[0]) formData.append('file', fileInput.files[0]);
 
     fetch('api/patch-poem.php', {
-        method: 'POST', // PHP handles PATCH as POST for multipart
+        method: 'POST',
         body: formData
     })
     .then(r => r.json())

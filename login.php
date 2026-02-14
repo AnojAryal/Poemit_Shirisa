@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once 'config/config.php';
 
 // Redirect if already logged in
@@ -18,7 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $database = new Database();
         $db = $database->getConnection();
 
-        $query = "SELECT id, username, email, password_hash FROM users WHERE email = :email";
+        // Fetch user including is_admin
+        $query = "SELECT id, username, email, password_hash, is_admin FROM users WHERE email = :email LIMIT 1";
         $stmt = $db->prepare($query);
         $stmt->bindParam(':email', $email);
         $stmt->execute();
@@ -26,15 +28,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch();
 
         if ($user && password_verify($password, $user['password_hash'])) {
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['username'] = $user['username'];
-            $_SESSION['email'] = $user['email'];
+            // ✅ Store session
+            $_SESSION['user_id']   = $user['id'];
+            $_SESSION['username']  = $user['username'];
+            $_SESSION['email']     = $user['email'];
+            $_SESSION['is_admin']  = intval($user['is_admin']); // make sure it's 0 or 1
+
+            // Redirect to home
             redirect('/');
         } else {
-            $error = 'Please provide valid email and password';
+            $error = 'Invalid email or password';
         }
     }
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">

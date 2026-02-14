@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS users (
     INDEX idx_email (email)
 ) ENGINE=InnoDB;
 
--- Poems table
+-- Poems table updated for review workflow
 CREATE TABLE IF NOT EXISTS poems (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS poems (
     format ENUM('text', 'image', 'document') DEFAULT 'text',
     file_url VARCHAR(500),
     tags VARCHAR(500),
-    is_published BOOLEAN DEFAULT TRUE,
+    status ENUM('pending','approved','rejected') DEFAULT 'pending',
     views_count INT DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

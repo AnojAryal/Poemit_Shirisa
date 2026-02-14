@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once '../config/config.php';
 header('Content-Type: application/json');
 if(!isLoggedIn()){ echo json_encode(['success'=>false,'error'=>'Login required']); exit;}
